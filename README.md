@@ -1,5 +1,13 @@
 # Homelab
 
+![Debian](https://img.shields.io/badge/Debian-D70A53?style=for-the-badge&logo=debian&logoColor=white)
+![Docker](https://img.shields.io/badge/docker-%230db7ed.svg?style=for-the-badge&logo=docker&logoColor=white)
+![Portainer](https://img.shields.io/badge/portainer-%2313BEF9.svg?style=for-the-badge&logo=portainer&logoColor=white)
+![Nginx](https://img.shields.io/badge/nginx-%23009639.svg?style=for-the-badge&logo=nginx&logoColor=white)
+![Nginx Proxy Manager](https://img.shields.io/badge/nginx_proxy_manager-%23F15833.svg?style=for-the-badge&logo=nginxproxymanager&logoColor=white)
+![Jellyfin](https://img.shields.io/badge/jellyfin-%23000B25.svg?style=for-the-badge&logo=Jellyfin&logoColor=00A4DC)
+![Bash Script](https://img.shields.io/badge/bash_script-%23121011.svg?style=for-the-badge&logo=gnu-bash&logoColor=white)
+
 A homelab / home media server configuration powered by docker, nginx, and tailscale
 
 > [!IMPORTANT]
@@ -17,69 +25,103 @@ A homelab / home media server configuration powered by docker, nginx, and tailsc
 3. _(optional)_ Setup [Tailscale SSH](https://tailscale.com/kb/1193/tailscale-ssh).
 
 ## What's Inside
-All services provided by this server are managed via docker & portainer.
+
+All services provided are managed by docker & portainer.
 
 ## Services
 
 - [Portainer](http://localhost:9443)
-- [Reverse Proxy via Nginx Proxy Manager](http://localhost:81)
-- Jellyfin
-- Audioshelf
+- [Nginx Proxy Manager](http://localhost:81)
+- Jellyfin _(coming soon)_
+- Audiobookshelf _(coming soon)_
 
 ## Getting started
 
-To startup services run
+To startup services run:
 
 ```sh
 sudo ./scripts/init.sh
 ```
-Each of these services should be available via your tailscale machines tailscale address, for example:
-- `https:<yourtailscaleip>:9443` for portainer
+
+To spin down services run:
+
+```sh
+sudo ./scripts/shutdown.sh
+```
+
+Each of these services should be available via your tailscale machines tailnet address, for example:
+- `https:<yourtailscaleip>:9443` for portainer.
 - `https:<yourtailscaleip>:81` for nginx.
 
 See steps below for configuring secure DNS and letsencrypt certificates for your homelab. 
 
 ## Configuring DNS
 
-If you're happy using tailnet IP addresses directly to manage homelab, you are done. If you want a more user-friendly experience with proper DNS handling, follow the steps below to configure DNS and SSL certificates.You will need to purchase a domain and be comfortable setting up DNS records as specified below. I recommend using namecheap or Cloudflare.
+If you're happy using a tailnet IP addresses directly to manage homelab, you are done. If you want a more user-friendly experience with proper DNS handling, follow the guide below to configure DNS and SSL certificates. You will need to purchase a domain and be comfortable setting up DNS records. This guide assumes either a namecheap or cloudflare DNS provider for simplicities sake.
 
-This project takes an opinionated approach to DNS that follows a simple standard.
+### DNS Goals
 
-1. If you are on a device on your tailnet, you should be able to use services through human readable domain names.
-2. Each service should be configured using subdomains, e.g `https://portainer.yourprivate.cloud`.
-3. If you are not on your tailnet, you have access to nothing. In other words, we're setting up a DNS record that points to a tailscale IP, not something publically available for all web traffic.
+---
+
+> [!NOTE]
+> This project takes an opinionated approach to DNS that follows a simple standard.
+
+1. If you are on a device on your tailnet, you should be able to use services through a readable domain.
+2. Each service should be configured using subdomains, e.g `https://portainer.yourprivate.cloud`, with a wildcard certificate.
+3. **If you disconnect from the tailnet, you lose access entirely**. In other words, we're setting up a DNS record that points to a tailscale IP, not something publicly available for all web traffic.
 
 This approach is secure, gives total administrative control over to a tailscale admin, and should support common use cases like travel, where you can easily connect to your tailnet securely on public wifi.
 
-### Setup proxy hosts in nginx proxy manager
-Follow these steps for each service you want exposed via your domain.
+### Setup proxy hosts in nginx
+
+--- 
+
+Open up Nginx Proxy Manager and follow these steps for each service you want exposed via your domain:
 1. Navigate to proxy hosts in nginx.
 2. Click Add Proxy Host.
 3. Setup the source as `<service>.<yourdomain>:<dockerport>`, eg. `portainer.myprivatecloud.com:9443`.
-4. Set Access List to `Publically Accessible`.
-5. Turn on `Block Common Exploits` (in practice this won't matter because services run on a secure tailnet, but adds extra protections).
+4. Set Access List to `Publicly Accessible`.
+5. Turn on `Block Common Exploits` _(in practice this shouldn't matter because services run on a secure tailnet, but adds extra protections)_.
 
-### Configure DNS records.
+---
+
+### Configuring DNS Records
 You will need your tailscale homelab machines tailnet IP address. You can find this in the tailscale admin console in a dropdown under `Machines`.
-1. Add an `A Record` with Host set to `@` and Value set to the tailnet IP.
-2. Add an `A Record` with Host set to `www` and Value set to the tailnet IP.
-3. Add an `A Record` with Hos set to `*` (wildcard) and a Value set to the tailnet IP.
-    - This will help us capture subdomains which nginxproxy has setup as proxy hosts.
+1. Add an `A Record` with `Host` set to `@` and `Value` set to the tailnet IP.
+2. Add an `A Record` with `Host` set to `www` and `Value` set to the tailnet IP.
+3. Add an `A Record` with `Host` set to `*` _(wildcard)_ and a `Value` set to the tailnet IP.
+    - This will help us capture the subdomains setup in the previous step with  nginx.
 4. You should now be able to access services setup in nginx proxy. For example `https://portainer.yourprivatecloud.com`.
-    - You will likely get an invalid certificate in the browser telling you the site is insecure. Bypass it for now to verify nginx proxies are working as expected. We will address this in the next step.
+
+> [!WARNING]
+> At this stage the browser will warn you that the connection is insecure. Please bypass browser security checks for now to verify nginx proxies are configured correctly. Configure SSL certificates below.
 
 ### Configuring SSL certificates
 
-Nginx Proxy Manager is setup to use letsencrypt by default. Below are some steps to create SSL certificates directly in nginx proxy manager without paying a domain registrar extra for SSL.
+---
 
-1. Optain a developer API key from your DNS provider. For both namecheap and cloudflare, this will be under your profile settings.
+Nginx Proxy Manager is setup to use `letsencrypt` by default. Below are some steps to create a wildcard SSL certificate directly in nginx proxy manager for free.
+
+1. Optain a developer API key from your DNS provider. For both Namecheap and Cloudflare, this will be under your profile settings.
 2. If necessary, whitelist your homelabs public IP address so that it's available to make API requests.
 3. In Nginx Proxy Manager, navigate to certificates and click `Add certificate`.
 4. Select `Let's Encrypt via DNS`.
 5. Use a wildcard for the certificate name, eg. `*.yourprivatecloud.com`.
-6. Select your DNS provider in the dropdown menu, e.g namecheap or cloudflare, etc.
-7. You will be prompted to provide the API token you obtained in step 1 for letsencrypt & cerbot to confirm DNS informaton with your provider.
-8. Once you have a certificate, navigate back to your proxy hosts and setup every proxy host to use your new SSL certificate.
-9. Navigate to one of your services via your domain, and ensure the connection is secure.
-10. You will now use this wild card certificate on all new host records you setup from here on out.
+6. Select your DNS provider in the dropdown menu, e.g Namecheap or Cloudflare, etc.
+7. You will be prompted to provide the API token you obtained in step 1 for `letsencrypt` & `certbot` to confirm domain ownership and metadata with your DNS provider.
+8. Hit `Save`.
+9. Once you've obtained a certificate, navigate back to proxy hosts and configure each proxy host record to use the new certificate.
+10. Test the connection in the browser. eg. `https://portainer.yourprivatecloud.com`. The connection should now be encrypted.
+11. Going forward, use this wild card certificate on all new nginx proxy host records going forward.
 
+## Resources & Documentation
+
+- [Portainer Docs](https://docs.portainer.io/)
+- Nginx
+  - [Nginx Proxy Manager](https://nginxproxymanager.com/guide/)
+  - [Nginx Proxy Manager Subreddit](https://www.reddit.com/r/nginxproxymanager/)
+- Tailscale
+  - [Tailscale Daemon](https://tailscale.com/kb/1278/tailscaled)
+  - [Tailscale SSH](https://tailscale.com/kb/1193/tailscale-ssh?q=ssh)
+  - [Tailscale Key Expiry](https://tailscale.com/kb/1028/key-expiry?q=expiry)
+- [Audiobookshelf](https://www.audiobookshelf.org/docs/#intro)
