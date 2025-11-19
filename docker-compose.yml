@@ -1,0 +1,38 @@
+services:
+  portainer:
+    container_name: portainer
+    image: portainer/portainer-ce:lts
+    restart: always
+    volumes:
+      # Mounts the host Docker socket into the container for management
+      - /var/run/docker.sock:/var/run/docker.sock
+      # Uses a named volume for persistent storage of Portainer's configuration
+      - portainer_data:/data
+    ports:
+      # Exposes the secure HTTPS UI port
+      - "9443:9443"
+
+  reverse-proxy:
+    container_name: "reverse-proxy"
+    image: 'jc21/nginx-proxy-manager:latest'
+    restart: unless-stopped
+    network_mode: "host"
+
+    environment:
+      TZ: "America/Denver"
+
+      # Uncomment this if you want to change the location of
+      # the SQLite DB file within the container
+      # DB_SQLITE_FILE: "/data/database.sqlite"
+
+      # Uncomment this if IPv6 is not enabled on your host
+      # DISABLE_IPV6: 'true'
+
+    volumes:
+      - ./data:/data
+      - ./letsencrypt:/etc/letsencrypt
+
+volumes:
+  portainer_data:
+    # Ensures a volume named 'portainer_data' is created and managed by Docker
+    name: portainer_data
