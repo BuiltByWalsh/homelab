@@ -17,9 +17,10 @@ A homelab / home media server configuration powered by docker, nginx, and tailsc
 1. Install docker for debian.
 2. Install the tailscale service on the machine following the steps below.
 3. Create a dotenv file to setup docker paths to your homelab media & content:
-    * ```sh
+    ```sh
     touch .env && echo "DRIVE_POOL_DATA=/zdata" >> .env
     ```
+
     * Please tweak `DRIVE_POOL_DATA` in `.env` with the desired drive pool name accordingly.
     * Not sure where to start with filesystem configuration? `zfs`, `OpenZFS`, or `btrfs` are great options.
     * It is heavily encouraged to run a RAID configuration or RAIDZ for data integrity and loss prevention.
@@ -35,12 +36,12 @@ A homelab / home media server configuration powered by docker, nginx, and tailsc
 
 All services provided are managed by docker & portainer.
 
-## Services
+### Services Included
 
 - [Portainer](http://localhost:9443)
 - [Nginx Proxy Manager](http://localhost:81)
-- Jellyfin _(coming soon)_
-- Audiobookshelf _(coming soon)_
+- [Jellyfin](http://localhost:8096)
+- [Audiobookshelf](http://localhost:13378)
 
 ## Getting started
 
@@ -59,6 +60,8 @@ sudo ./scripts/shutdown.sh
 Each of these services should be available via your tailscale machines tailnet address, for example:
 - `https:<yourtailscaleip>:9443` for portainer.
 - `https:<yourtailscaleip>:81` for nginx.
+- `https:<yourtailscaleip>:8096` for jellyfin.
+- `https:<yourtailscaleip>:13378` for audiobookshelf.
 
 See steps below for configuring secure DNS and letsencrypt certificates for your homelab. 
 
@@ -86,9 +89,11 @@ This approach is secure, gives total administrative control over to a tailscale 
 Open up Nginx Proxy Manager and follow these steps for each service you want exposed via your domain:
 1. Navigate to proxy hosts in nginx.
 2. Click Add Proxy Host.
-3. Setup the source as `<service>.<yourdomain>:<dockerport>`, eg. `portainer.myprivatecloud.com:9443`.
+3. Setup the source as `<service>.<yourdomain>.<yourtld>`, eg. `portainer.myprivatecloud.com`.
+4. Setup the destination as localhost + the localhost docker port, eg. `127.0.0.1:8096` for jellyfin.
 4. Set Access List to `Publicly Accessible`.
 5. Turn on `Block Common Exploits` _(in practice this shouldn't matter because services run on a secure tailnet, but adds extra protections)_.
+6. Add the SSL certificate from the "Configuring SSL certificates" step below. If this is a first time setup, ignore this step for now, you can add the SSL certificate later.
 
 ---
 
@@ -96,14 +101,14 @@ Open up Nginx Proxy Manager and follow these steps for each service you want exp
 You will need your tailscale homelab machines tailnet IP address. You can find this in the tailscale admin console in a dropdown under `Machines`.
 1. Add an `A Record` with `Host` set to `@` and `Value` set to the tailnet IP.
 2. Add an `A Record` with `Host` set to `www` and `Value` set to the tailnet IP.
-3. Add an `A Record` with `Host` set to `*` _(wildcard)_ and a `Value` set to the tailnet IP.
+3. Add an `A Record` with `Host` set to `*` _(wildcard for subdomains)_ and a `Value` set to the tailnet IP.
     - This will help us capture the subdomains setup in the previous step with  nginx.
 4. You should now be able to access services setup in nginx proxy. For example `https://portainer.yourprivatecloud.com`.
 
 > [!WARNING]
 > At this stage the browser will warn you that the connection is insecure. Please bypass browser security checks for now to verify nginx proxies are configured correctly. Configure SSL certificates below.
 
-### Configuring SSL certificates
+### Configuring an SSL certificate
 
 ---
 
@@ -131,4 +136,7 @@ Nginx Proxy Manager is setup to use `letsencrypt` by default. Below are some ste
   - [Tailscale Daemon](https://tailscale.com/kb/1278/tailscaled)
   - [Tailscale SSH](https://tailscale.com/kb/1193/tailscale-ssh?q=ssh)
   - [Tailscale Key Expiry](https://tailscale.com/kb/1028/key-expiry?q=expiry)
-- [Audiobookshelf](https://www.audiobookshelf.org/docs/#intro)
+- Services
+    - [Jellyfin](https://jellyfin.org/docs/general/installation/container/)
+    - [Audiobookshelf](https://www.audiobookshelf.org/docs/#docker-compose-install)
+
