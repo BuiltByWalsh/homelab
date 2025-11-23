@@ -17,9 +17,10 @@ A homelab / home media server configuration powered by docker, nginx, and tailsc
 1. Install docker for debian.
 2. Install the tailscale service on the machine following the steps below.
 3. Create a dotenv file to setup docker paths to your homelab media & content:
-    * ```sh
+    ```sh
     touch .env && echo "DRIVE_POOL_DATA=/zdata" >> .env
     ```
+
     * Please tweak `DRIVE_POOL_DATA` in `.env` with the desired drive pool name accordingly.
     * Not sure where to start with filesystem configuration? `zfs`, `OpenZFS`, or `btrfs` are great options.
     * It is heavily encouraged to run a RAID configuration or RAIDZ for data integrity and loss prevention.
