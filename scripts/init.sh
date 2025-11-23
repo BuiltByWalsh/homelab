@@ -26,7 +26,7 @@ fi
 ## Start docker services
 echo "Starting services with docker compose"
 
-if ! docker compose up -d --env-file=.env; then
+if ! docker compose --env-file=.env up -d; then
   echo "Error: failed to start all required docker services. Please check the error messages above."
 else
   echo "All services are active and ready to accept connections."
