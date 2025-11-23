@@ -61,6 +61,28 @@ services:
     extra_hosts:
       - 'host.docker.internal:host-gateway'
 
+  audiobookshelf:
+    image: ghcr.io/advplyr/audiobookshelf:latest
+    container_name: "audiobookshelf"
+    ports:
+      - 13378:80
+
+    # DRIVE_POOL_PREFIX defaults to /zdata/. Configure as necessary.
+    volumes:
+      - ${DRIVE_POOL_PREFIX}/.config/audiobookshelf:/config
+      - ${DRIVE_POOL_PREFIX}/.cache/audiobookshelf:/metadata
+      - type: bind
+        source: ${DRIVE_POOL_PREFIX}/audio/audiobooks
+        target: /audiobooks
+        read_only: true
+      - type: bind
+        source: ${DRIVE_POOL_PREFIX}/audio/podcasts
+        target: /podcasts
+        read_only: true
+
+    environment:
+      TZ: "America/Denver"
+
 volumes:
   portainer_data:
     # Ensures a volume named 'portainer_data' is created and managed by Docker
