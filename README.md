@@ -42,6 +42,7 @@ All services provided are managed by docker & portainer.
 - [Nginx Proxy Manager](http://localhost:81)
 - [Jellyfin](http://localhost:8096)
 - [Audiobookshelf](http://localhost:13378)
+- [SyncThing](https://docs.syncthing.net/intro/getting-started.html#)
 
 ## Getting started
 
@@ -139,4 +140,5 @@ Nginx Proxy Manager is setup to use `letsencrypt` by default. Below are some ste
 - Services
     - [Jellyfin](https://jellyfin.org/docs/general/installation/container/)
     - [Audiobookshelf](https://www.audiobookshelf.org/docs/#docker-compose-install)
+    - [SyncThing](https://docs.syncthing.net/intro/getting-started.html)
 
