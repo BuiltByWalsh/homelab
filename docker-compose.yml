@@ -99,10 +99,15 @@ services:
         source: ${DRIVE_POOL_PREFIX}/documents
         target: /documents
 
-      # Optional obsidian sync directory. Comment out to turn off support.
+      # Optional obsidian sync directory.
       - type: bind
         source: ${DRIVE_POOL_PREFIX}/obsidian
         target: /obsidian
+
+      # Optional archive directory for large zip exports.
+      - type: bind
+        source: ${DRIVE_POOL_PREFIX}/archive
+        target: /archive
 
     ports:
       - 8384:8384
