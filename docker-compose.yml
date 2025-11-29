@@ -99,15 +99,19 @@ services:
         source: ${DRIVE_POOL_PREFIX}/documents
         target: /documents
 
+      - type: bind
+        source: ${DRIVE_POOL_PREFIX}/archive
+        target: /archive
+
       # Optional obsidian sync directory.
       - type: bind
         source: ${DRIVE_POOL_PREFIX}/obsidian
         target: /obsidian
 
-      # Optional archive directory for large zip exports.
+      # Optional taskwarrior directory.
       - type: bind
-        source: ${DRIVE_POOL_PREFIX}/archive
-        target: /archive
+        source: ${DRIVE_POOL_PREFIX}/.task
+        target: /.task
 
     ports:
       - 8384:8384
