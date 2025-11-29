@@ -90,13 +90,18 @@ services:
       - PUID=1000
       - PGID=1000
       - TZ=Etc/UTC
+
+    # NOTE Mounted volumes are not read_only bc syncthing runs peer-to-peer.
+    # The classic server/client model doesn't apply.
     volumes:
       - ${DRIVE_POOL_PREFIX}/.config/syncthing:/config
-      # This mounted volume is not read_only because syncthing runs in a peer-to-peer.
-      # The classic server/client model doesn't apply.
       - type: bind
-        source : ${DRIVE_POOL_PREFIX}/documents
+        source: ${DRIVE_POOL_PREFIX}/documents
         target: /documents
+      # Optional obsidian sync directories. Comment out to turn off obsidian support.
+      - type: bind
+        source: ${DRIVE_POOL_PREFIX}/obsidian 
+        target: /obsidian
 
     ports:
       - 8384:8384
