@@ -16,6 +16,9 @@ jobs:
 
   docker_check:
     runs-on: ubuntu-latest
+    env:
+      DRIVE_POOL_PREFIX: ${{ secrets.DRIVE_POOL_PREFIX }}
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
