@@ -175,11 +175,12 @@ The Syncthing docker service comes out of the box with 4 directories:
 > [!IMPORTANT]
 > The `systemd` service file assumes this project was cloned to `~/.config/homelab` during the [getting started](#getting-started) step.
 
-1. Run the install script to add a new service to your machine:
+1. Ensure `SERVICE_INSTALL_PATH` is configured correctly in your `.env`.
+2. Run the install script to add the service systemd:
     ```sh
     sudo ./scripts/install.sh
     ```
-2. Enable the `systemd` service:
+3. Enable the homelab `systemd` service:
     ```sh
     sudo systemctl daemon-reload
     sudo systemctl enable homelab.service
