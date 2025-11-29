@@ -1,3 +1,4 @@
+---
 services:
   portainer:
     container_name: portainer
@@ -48,16 +49,15 @@ services:
         target: /media
         read_only: true
 
-      # Optional - extra fonts to be used during transcoding with subtitle burn-in
-      # - type: bind
-      #   source: /path/to/fonts
-      #   target: /usr/local/share/fonts/custom
-      #   read_only: true
+        # Optional extra fonts used during transcoding with subtitle burn-in
+        # - type: bind
+        #   source: /path/to/fonts
+        #   target: /usr/local/share/fonts/custom
+        #   read_only: true
 
     restart: "unless-stopped"
-    # Optional - alternative address used for autodiscovery
 
-    # Optional - may be necessary for docker healthcheck to pass if running in host network mode
+    # Optional docker healthcheck if running in host network mode
     extra_hosts:
       - "host.docker.internal:host-gateway"
 
@@ -92,15 +92,16 @@ services:
       - TZ=Etc/UTC
 
     # NOTE Mounted volumes are not read_only bc syncthing runs peer-to-peer.
-    # The classic server/client model doesn't apply.
+    # The classic server/client model does not apply.
     volumes:
       - ${DRIVE_POOL_PREFIX}/.config/syncthing:/config
       - type: bind
         source: ${DRIVE_POOL_PREFIX}/documents
         target: /documents
-      # Optional obsidian sync directories. Comment out to turn off obsidian support.
+
+      # Optional obsidian sync directory. Comment out to turn off support.
       - type: bind
-        source: ${DRIVE_POOL_PREFIX}/obsidian 
+        source: ${DRIVE_POOL_PREFIX}/obsidian
         target: /obsidian
 
     ports:
