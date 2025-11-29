@@ -1,0 +1,18 @@
+name: Lint Docker Compose
+
+on: [push, pull_request]
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install yamllint
+        run: pip install yamllint
+
+      - name: Lint docker-compose.yml with yamllint
+        run: yamllint docker-compose.yml
+
+      - name: Validate docker-compose.yml with docker-compose config
+        run: docker-compose config

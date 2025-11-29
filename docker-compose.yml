@@ -14,7 +14,7 @@ services:
 
   reverse-proxy:
     container_name: "reverse-proxy"
-    image: 'jc21/nginx-proxy-manager:latest'
+    image: "jc21/nginx-proxy-manager:latest"
     restart: unless-stopped
     network_mode: "host"
 
@@ -54,12 +54,12 @@ services:
       #   target: /usr/local/share/fonts/custom
       #   read_only: true
 
-    restart: 'unless-stopped'
+    restart: "unless-stopped"
     # Optional - alternative address used for autodiscovery
 
     # Optional - may be necessary for docker healthcheck to pass if running in host network mode
     extra_hosts:
-      - 'host.docker.internal:host-gateway'
+      - "host.docker.internal:host-gateway"
 
   audiobookshelf:
     image: ghcr.io/advplyr/audiobookshelf:latest
