@@ -13,7 +13,7 @@ A homelab / home media server configuration powered by docker, nginx, and tailsc
 > [!IMPORTANT]
 > Project setup assumes a debian environment, adjust as needed for other linux distributions. 
 
-## Pre-requisites
+## Pre-requisites 🛠️
 1. Install docker for debian.
 2. Install the tailscale service on the machine following the steps below.
 3. Create a dotenv file to setup docker paths to your homelab media & content:
@@ -24,7 +24,7 @@ A homelab / home media server configuration powered by docker, nginx, and tailsc
     * Please tweak `DRIVE_POOL_DATA` in `.env` with the desired drive pool name accordingly.
     * Not sure where to start with filesystem configuration? `zfs`, `OpenZFS`, or `btrfs` are great options.
     * It is heavily encouraged to run a RAID configuration or RAIDZ for data integrity and loss prevention.
-4. _Optional_ secure a private cloud domain via your favorite domain registrar. It's recommended you use cloudflare or Namecheap as they provide developer API tokens we will use below.
+4. _**Optional**_: Secure a private cloud domain via your favorite domain registrar. It's recommended you use cloudflare or Namecheap as they provide developer API tokens we will use below.
     - If you're perfectly happy using IP addresses, skip this step. 
 
 ### Tailscale Guide
@@ -32,7 +32,7 @@ A homelab / home media server configuration powered by docker, nginx, and tailsc
 2. Because this is a home server, [disable key expiry](https://tailscale.com/kb/1028/key-expiry) in the tailscale admin console.
 3. _(optional)_ Setup [Tailscale SSH](https://tailscale.com/kb/1193/tailscale-ssh).
 
-## What's Inside
+## What's Inside ✨
 
 All services provided are managed by docker & portainer.
 
@@ -44,7 +44,7 @@ All services provided are managed by docker & portainer.
 - [Audiobookshelf](http://localhost:13378)
 - [SyncThing](https://docs.syncthing.net/intro/getting-started.html#)
 
-## Getting started
+## Getting started 🚀
 
 To startup services run:
 
@@ -63,14 +63,15 @@ Each of these services should be available via your tailscale machines tailnet a
 - `https:<yourtailscaleip>:81` for nginx.
 - `https:<yourtailscaleip>:8096` for jellyfin.
 - `https:<yourtailscaleip>:13378` for audiobookshelf.
+- `https:<yourtailscaleip>:8384` for syncthing.
 
 See steps below for configuring secure DNS and letsencrypt certificates for your homelab. 
 
-## Configuring DNS
+## Configuring DNS 🌐
 
 If you're happy using a tailnet IP addresses directly to manage homelab, you are done. If you want a more user-friendly experience with proper DNS handling, follow the guide below to configure DNS and SSL certificates. You will need to purchase a domain and be comfortable setting up DNS records. This guide assumes either a namecheap or cloudflare DNS provider for simplicities sake.
 
-### DNS Goals
+### DNS goals
 
 ---
 
@@ -79,7 +80,7 @@ If you're happy using a tailnet IP addresses directly to manage homelab, you are
 
 1. If you are on a device on your tailnet, you should be able to use services through a readable domain.
 2. Each service should be configured using subdomains, e.g `https://portainer.yourprivate.cloud`, with a wildcard certificate.
-3. **If you disconnect from the tailnet, you lose access entirely**. In other words, we're setting up a DNS record that points to a tailscale IP, not something publicly available for all web traffic.
+3. **If you disconnect from the tailnet, you lose access to the homelab entirely**. In other words, we're setting up a DNS record that points to a tailscale IP, not something publicly available for all web traffic.
 
 This approach is secure, gives total administrative control over to a tailscale admin, and should support common use cases like travel, where you can easily connect to your tailnet securely on public wifi.
 
@@ -98,7 +99,7 @@ Open up Nginx Proxy Manager and follow these steps for each service you want exp
 
 ---
 
-### Configuring DNS Records
+### Configuring DNS records
 You will need your tailscale homelab machines tailnet IP address. You can find this in the tailscale admin console in a dropdown under `Machines`.
 1. Add an `A Record` with `Host` set to `@` and `Value` set to the tailnet IP.
 2. Add an `A Record` with `Host` set to `www` and `Value` set to the tailnet IP.
@@ -123,13 +124,42 @@ Nginx Proxy Manager is setup to use `letsencrypt` by default. Below are some ste
 6. Select your DNS provider in the dropdown menu, e.g Namecheap or Cloudflare, etc.
 7. You will be prompted to provide the API token you obtained in step 1 for `letsencrypt` & `certbot` to confirm domain ownership and metadata with your DNS provider.
 8. Hit `Save`.
-9. Once you've obtained a certificate, navigate back to proxy hosts and configure each proxy host record to use the new certificate.
-10. Test the connection in the browser. eg. `https://portainer.yourprivatecloud.com`. The connection should now be encrypted.
-11. Going forward, use this wild card certificate on all new nginx proxy host records going forward.
+9. Going forward, select this wild card certificate on all new nginx proxy host records going forward.
+10. Navigate back to proxy hosts and configure each proxy host record to use the new certificate following the steps below.
 
-## Resources & Documentation
+### Configuring Nginx Proxy Manager
 
-- [Portainer Docs](https://docs.portainer.io/)
+Below is a list of sensible defaults you may use when configuring nginx proxy manager to work with the SSL certificates above:
+
+| Source | Destination | SSL | Access |
+| ------ | ----------- | --- | ------ |
+| abs.jsquared.cloud | http://127.0.0.1:13378 | Let's Encrypt | Public |
+| jellyfin.jsquared.cloud | http://127.0.0.1:8096 | Let's Encrypt | Public |
+| portainer.jsquared.cloud | http://127.0.0.1:9443 | Let's Encrypt | Public |
+| syncthing.jsquared.cloud | http://127.0.0.1:8384 | Let's Encrypt | Public |
+
+Configure these proxy records as follows:
+
+1. Select the certificate made in the `Configuring DNS` script up above.
+2. Turn on `Force SSL` in the `Edit -> SSL` option.
+3. Turn on `Websockets Support` for both jellyfin and abs _(audiobookshelf)_.
+4. _**Optional**_: Configure `Block Common Exploits` on all records in `Edit -> Details`.
+5. Test the connection in the browser by navigating to `https://portainer.yourprivatecloud.com`. The connection should now be encrypted.
+
+## Syncthing
+
+Syncthing comes out of the box with 4 directories:
+  - `documents` - google drive / icloud drive / onedrive alternative.
+  - `archive` - for storing large zips for backups, or exports _(say you request your data from a platform before deleting an account, or a GDPR request, etc)_
+  - _**Optional**_: `obsidian` - an obsidian sync alternative.
+  - _**Optional**_: `.task` a directory for syncing [taskwarrior](https://taskwarrior.org/) tasks across devices.
+  
+Comment out the mounted volumes in the syncthing docker compose service that you do not plan on using.
+
+
+## Resources & documentation 📚
+
+- [Portainer](https://docs.portainer.io/)
 - Nginx
   - [Nginx Proxy Manager](https://nginxproxymanager.com/guide/)
   - [Nginx Proxy Manager Subreddit](https://www.reddit.com/r/nginxproxymanager/)
