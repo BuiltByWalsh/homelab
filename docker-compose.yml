@@ -109,9 +109,10 @@ services:
         target: /obsidian
 
       # Optional taskwarrior directory.
+      # Set this up to sync to ~/.task on devices.
       - type: bind
-        source: ${DRIVE_POOL_PREFIX}/.task
-        target: /.task
+        source: ${DRIVE_POOL_PREFIX}/taskwarrior
+        target: /taskwarrior
 
     ports:
       - 8384:8384
