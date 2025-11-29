@@ -1,0 +1,15 @@
+[Unit]
+Description=BuiltByWalsh Homelab
+After=network.target
+Requires=docker.service.d
+
+[Service]
+Type=simple
+User=root
+ExecStart=~/.config/homelab/scripts/init.sh
+ExecStop=./.config/homelab/scripts/shutdown.sh
+Restart=unless-stopped
+RestartSec=3
+
+[Install]
+WantedBy=multi-user.target
