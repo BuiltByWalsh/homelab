@@ -36,6 +36,7 @@ services:
   jellyfin:
     image: jellyfin/jellyfin
     container_name: jellyfin
+    env_file: .env
     ports:
       - 8096:8096/tcp
       - 7359:7359/udp
@@ -64,6 +65,7 @@ services:
   audiobookshelf:
     image: ghcr.io/advplyr/audiobookshelf:latest
     container_name: "audiobookshelf"
+    env_file: .env
     ports:
       - 13378:80
 
@@ -86,6 +88,7 @@ services:
   syncthing:
     image: lscr.io/linuxserver/syncthing:latest
     container_name: syncthing
+    env_file: .env
     environment:
       - PUID=1000
       - PGID=1000
