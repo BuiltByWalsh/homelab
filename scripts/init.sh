@@ -1,12 +1,6 @@
 #!/bin/bash
 
-## TODOS
-# 1. Check that tailscale is running via systemd service.
-# 2. Run docker-compose up -d.
-# 3. Run some integrity health checks against portainer.
-#
-
-## Check tailscale service daemon
+# --- 1. Check tailscale service daemon ---
 echo "Checking status of tailscaled service..."
 
 if ! systemctl is-active --quiet tailscaled; then
@@ -21,14 +15,14 @@ if ! systemctl is-active --quiet tailscaled; then
 else
   echo "The tailscaled service is already active. No action needed."
 fi
-##
+# ---
 
-## Start docker services
+# --- 2. Start docker services ---
 echo "Starting services with docker compose"
 
-if ! docker compose --env-file=.env up -d; then
+if ! docker compose -f ../docker-compose.yml up -d; then
   echo "Error: failed to start all required docker services. Please check the error messages above."
 else
   echo "All services are active and ready to accept connections."
 fi
-##
+# ---
