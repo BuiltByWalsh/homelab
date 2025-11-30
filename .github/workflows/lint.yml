@@ -24,7 +24,7 @@ jobs:
       - name: Create ephemeral .env file
         run: |
           touch .env
-          echo DRIVE_POOL_PREFIX=invalid >> .env
+          echo DRIVE_POOL_PREFIX=/invalid >> .env
 
       - name: Validate docker compose config
         run: docker compose config
