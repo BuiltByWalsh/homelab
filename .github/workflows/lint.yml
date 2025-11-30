@@ -16,12 +16,15 @@ jobs:
 
   docker_check:
     runs-on: ubuntu-latest
-    env:
-      DRIVE_POOL_PREFIX: ${{ secrets.DRIVE_POOL_PREFIX }}
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+
+      - name: Create ephemeral .env file
+        run: |
+          touch .env
+          echo DRIVE_POOL_PREFIX=invalid >> .env
 
       - name: Validate docker compose config
         run: docker compose --env-file=.env.example config
