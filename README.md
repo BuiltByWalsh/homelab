@@ -22,6 +22,8 @@ A homelab / home media server configuration
 > Project setup assumes a debian environment, adjust as needed for other linux distributions.
 
 1. Install [docker for debian](https://docs.docker.com/engine/install/debian/).
+    * Enable [live restore](https://docs.docker.com/engine/daemon/live-restore/#enable-live-restore) in the docker daemon configuration. Crucially, this will allow containers to remain running if the daemon becomes unavailable.
+    * The live restore option also helps reduce container downtime due to daemon crashes, planned outages, or upgrades.
 2. Create a dotenv file to setup paths for the homelab drive pool directory as well as the desired service install path. Refer to the `.env.example`. Here are some recommendations:
     ```sh
     touch .env && echo $'DRIVE_POOL_DATA=/zdata' >> .env
@@ -61,14 +63,14 @@ All services provided are managed by docker & portainer.
   rm -rf ~/.config/homelab/.git
   ```
 
-- To startup services run:
+- To startup docker services run:
   ```sh
-  sudo ./scripts/init.sh
+  sudo ./scripts/start.sh
   ```
 
-- To shutdown services run:
+- To stop services run:
   ```sh
-  sudo ./scripts/shutdown.sh
+  sudo ./scripts/stop.sh
   ```
 
 In addition to localhost, each of these services should be available via your tailscale homelab machine tailnet address, for example:
@@ -171,27 +173,10 @@ The Syncthing docker service comes out of the box with 4 directories:
 
 Congratulations on the new homelab 👏. Happy tinkering.
 
-## Create a systemd service
+## Post Setup Instructions
 
-To create a system-wide service for running the homelab you can reference `.examples/homelab.service.example` as a starting point.
-
-1. Copy the content in `.examples/homelab.service.example` to `/etc/systemd/system/homelab.service`.
-    > [!Important]
-    >  You must replace `<INSERT_USERNAME>` from the example with your actual Linux username *(e.g. the user associated with the home directory where you cloned the repository)*.
-
-2. Run the following:
-    ```sh
-    # Reload the systemd daemon to recognize the new file
-    sudo systemctl daemon-reload
-    # Enable the service to start at boot and start it immediately
-    sudo systemctl enable --now homelab.service
-    ```
-3. To stop and restart the service:
-    ```sh
-    sudo systemctl stop homelab.service
-    sudo systemctl start homelab.service
-    ```
-
+- You may wish to run these docker services using something like `systemd`. Note that
+`systemd`, [live restore](https://docs.docker.com/engine/daemon/live-restore/#enable-live-restore), and [automatic container restart policies](https://docs.docker.com/engine/containers/start-containers-automatically/) will conflict and compete with one another, causing unexpected behavior.
 
 ## Resources & documentation 📚
 
