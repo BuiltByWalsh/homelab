@@ -24,9 +24,8 @@ A homelab / home media server configuration
 1. Install [docker for debian](https://docs.docker.com/engine/install/debian/).
 2. Create a dotenv file to setup paths for the homelab drive pool directory as well as the desired service install path. Refer to the `.env.example`. Here are some recommendations:
     ```sh
-    touch .env && echo $'DRIVE_POOL_DATA=/zdata\nSERVICE_INSTALL_PATH=/etc/systemd/system' >> .env
+    touch .env && echo $'DRIVE_POOL_DATA=/zdata' >> .env
     ```
-    * Tweaking `SERVICE_INSTALL_PATH` is not recommended. **However** this directory may be set to whichever location you prefer to run `systemd` services from. By default the project will use the system administrator `systemd` directory.
     * Adjust the `DRIVE_POOL_DATA` directory to your desired drive pool accordingly.
     * Not sure where to start with filesystem configuration? `zfs`, `OpenZFS`, or `btrfs` are all great options.
     * It is heavily encouraged to run a `RAID5` or `RAIDZ1` setup for data integrity and loss prevention.
@@ -170,24 +169,29 @@ The Syncthing docker service comes out of the box with 4 directories:
 > [!TIP]
 > _Remove / comment out any unnecessary volumes in the syncthing docker compose service._
 
-## Install homelab as systemd service
+Congratulations on the new homelab 👏. Happy tinkering.
 
-> [!IMPORTANT]
-> The `systemd` service file assumes this project was cloned to `~/.config/homelab` during the [getting started](#getting-started) step.
+## Create a systemd service
 
-1. Ensure `SERVICE_INSTALL_PATH` is configured correctly in your `.env`.
-2. Run the install script to add the service systemd:
+To create a system-wide service for running the homelab you can reference `.examples/homelab.service.example` as a starting point.
+
+1. Copy the content in `.examples/homelab.service.example` to `/etc/systemd/system/homelab.service`.
+    > [!Important]
+    >  You must replace `<INSERT_USERNAME>` from the example with your actual Linux username *(e.g. the user associated with the home directory where you cloned the repository)*.
+
+2. Run the following:
     ```sh
-    sudo ./scripts/install.sh
-    ```
-3. Enable the homelab `systemd` service:
-    ```sh
+    # Reload the systemd daemon to recognize the new file
     sudo systemctl daemon-reload
-    sudo systemctl enable homelab.service
+    # Enable the service to start at boot and start it immediately
+    sudo systemctl enable --now homelab.service
+    ```
+3. To stop and restart the service:
+    ```sh
+    sudo systemctl stop homelab.service
     sudo systemctl start homelab.service
     ```
 
-Congratulations on the new homelab 👏. Happy tinkering.
 
 ## Resources & documentation 📚
 
