@@ -27,4 +27,4 @@ jobs:
           echo DRIVE_POOL_PREFIX=invalid >> .env
 
       - name: Validate docker compose config
-        run: docker compose --env-file=.env.example config
+        run: docker compose config
