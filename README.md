@@ -65,12 +65,12 @@ All services provided are managed by docker & portainer.
 
 - To startup docker services run:
   ```sh
-  sudo ./scripts/start.sh
+  ./scripts/start.sh
   ```
 
 - To stop services run:
   ```sh
-  sudo ./scripts/stop.sh
+  ./scripts/stop.sh
   ```
 
 In addition to localhost, each of these services should be available via your tailscale homelab machine tailnet address, for example:
